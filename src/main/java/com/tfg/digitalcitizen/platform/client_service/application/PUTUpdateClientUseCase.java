@@ -3,6 +3,7 @@ package com.tfg.digitalcitizen.platform.client_service.application;
 import com.tfg.digitalcitizen.platform.client_service.application.dto.ClientDto;
 import com.tfg.digitalcitizen.platform.client_service.application.mapper.ClientMapper;
 import com.tfg.digitalcitizen.platform.client_service.core.model.Client;
+import com.tfg.digitalcitizen.platform.client_service.core.model.ClientStatus;
 import com.tfg.digitalcitizen.platform.client_service.core.ports.ClientRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,14 +14,34 @@ public class PUTUpdateClientUseCase {
 
     private final ClientRepositoryPort repository;
 
-    public ClientDto invoke(ClientDto clientDto) {
-        if (clientDto == null || clientDto.getId() == null) {
-            throw new IllegalArgumentException("Client or client ID cannot be null");
+    public ClientDto invoke(Long id, ClientDto clientDto) {
+        if (clientDto == null) {
+            throw new IllegalArgumentException("Client data cannot be null");
         }
 
-        Client clientToUpdate = ClientMapper.toDomain(clientDto);
-        Client updatedClient = repository.update(clientToUpdate);
-        return ClientMapper.toDto(updatedClient);
+        // Buscar el cliente existente
+        Client existingClient = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Client not found with ID: " + id));
+
+        ClientStatus newStatus;
+        try {
+            newStatus = ClientStatus.valueOf(clientDto.getStatus().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid client status: " + clientDto.getStatus());
+        }
+
+        Client updatedClient = existingClient.updateData(
+                clientDto.getCompanyName(),
+                clientDto.getCif(),
+                clientDto.getEmail(),
+                clientDto.getPhoneNumber(),
+                clientDto.getAddress(),
+                newStatus
+        );
+
+        Client savedClient = repository.update(updatedClient);
+        return ClientMapper.toDto(savedClient);
     }
 }
+
 

@@ -10,9 +10,9 @@ public final class User {
     private final Department department;
     private final LocalDate registrationDate;
     private final UserStatus status;
+    private final UserRole role;
     private final Long clientId;
     private final Long lineId;
-    private final Long deviceId;
 
     // --- Getters ---
     public Long id() { return id; }
@@ -21,16 +21,16 @@ public final class User {
     public String department() { return department.toPrimitive(); }
     public LocalDate registrationDate() { return registrationDate; }
     public String status() { return status.name(); }
+    public String role() { return role.name(); }
     public Long clientId() { return clientId; }
     public Long lineId() { return lineId; }
-    public Long deviceId() { return deviceId; }
 
     // --- Constructor privado ---
     private User(Long id, String fullName, String email, String department,
-                 LocalDate registrationDate, UserStatus status,
-                 Long clientId, Long lineId, Long deviceId) {
+                 LocalDate registrationDate, UserStatus status, UserRole role,
+                 Long clientId, Long lineId) {
 
-        if (fullName == null || registrationDate == null || status == null || clientId == null)
+        if (fullName == null || registrationDate == null || status == null || clientId == null || role == null)
             throw new IllegalArgumentException("Campos obligatorios no pueden ser nulos.");
 
         this.id = id;
@@ -39,22 +39,22 @@ public final class User {
         this.department = Department.fromPrimitive(department);
         this.registrationDate = registrationDate;
         this.status = status;
+        this.role = role;
         this.clientId = clientId;
         this.lineId = lineId;
-        this.deviceId = deviceId;
     }
 
     // --- Factory methods ---
     public static User fromPrimitives(String fullName, String email, String department,
-                                      LocalDate registrationDate, UserStatus status,
-                                      Long clientId, Long lineId, Long deviceId) {
-        return new User(null, fullName, email, department, registrationDate, status, clientId, lineId, deviceId);
+                                      LocalDate registrationDate, UserStatus status, UserRole role,
+                                      Long clientId, Long lineId) {
+        return new User(null, fullName, email, department, registrationDate, status, role, clientId, lineId);
     }
 
     public static User fromPrimitives(Long id, String fullName, String email, String department,
-                                      LocalDate registrationDate, UserStatus status,
-                                      Long clientId, Long lineId, Long deviceId) {
-        return new User(id, fullName, email, department, registrationDate, status, clientId, lineId, deviceId);
+                                      LocalDate registrationDate, UserStatus status, UserRole role,
+                                      Long clientId, Long lineId) {
+        return new User(id, fullName, email, department, registrationDate, status, role,  clientId, lineId);
     }
 
     // --- Business logic ---
@@ -65,7 +65,7 @@ public final class User {
     public User deactivate() {
         return new User(this.id, this.fullName.toPrimitive(), this.email.toPrimitive(),
                 this.department.toPrimitive(), this.registrationDate,
-                UserStatus.INACTIVE, this.clientId, this.lineId, this.deviceId);
+                UserStatus.INACTIVE,this.role, this.clientId, this.lineId);
     }
 }
 

@@ -60,6 +60,19 @@ public final class Client {
                 this.email.toPrimitive(), this.phoneNumber.toPrimitive(),
                 this.address.toPrimitive(), this.registrationDate, ClientStatus.INACTIVE);
     }
+    public Client updateData(String companyName, String cif, String email,
+                             String phoneNumber, String address, ClientStatus status) {
+        return new Client(
+                this.id, // mantiene el ID original
+                companyName,
+                cif,
+                email,
+                phoneNumber,
+                address,
+                this.registrationDate, // mantiene la fecha de registro original
+                status
+        );
+    }
 }
 
 

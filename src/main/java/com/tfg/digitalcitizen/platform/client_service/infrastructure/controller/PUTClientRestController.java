@@ -20,9 +20,9 @@ public class PUTClientRestController {
             @ApiResponse(responseCode = "200", description = "Client updated successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid input")
     })
-    @PutMapping("/clients")
-    public ResponseEntity<ClientDto> updateClient(@RequestBody ClientDto clientDto) {
-        ClientDto updatedClient = useCase.invoke(clientDto);
+    @PutMapping("/clients/{id}")
+    public ResponseEntity<ClientDto> updateClient(@PathVariable Long id, @RequestBody ClientDto clientDto) {
+        ClientDto updatedClient = useCase.invoke(id, clientDto);
         return ResponseEntity.ok(updatedClient);
     }
 }

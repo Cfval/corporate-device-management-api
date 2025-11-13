@@ -10,7 +10,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update     # crea/actualiza tablas según @Entity (no borra datos)
+      ddl-auto: create-drop    # crea/actualiza tablas según @Entity (no borra datos)
     show-sql: true         # muestra SQL por consola
     open-in-view: false
     properties:
