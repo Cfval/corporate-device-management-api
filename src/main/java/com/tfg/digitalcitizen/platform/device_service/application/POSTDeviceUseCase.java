@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class POSTCreateDeviceUseCase {
+public class POSTDeviceUseCase {
 
     private final DeviceRepositoryPort repository;
 

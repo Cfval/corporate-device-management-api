@@ -13,7 +13,7 @@ import java.time.LocalDate;
 public class ClientDataLoader {
 
     @Bean
-    CommandLineRunner initDatabase(ClientRepositoryPort repository) {
+    CommandLineRunner initClientsDatabase(ClientRepositoryPort repository) {
         return args -> {
 
             if (repository.findAll().isEmpty()) {

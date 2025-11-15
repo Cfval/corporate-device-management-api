@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class PUTUpdateDeviceUseCase {
+public class PUTDeviceUseCase {
 
     private final DeviceRepositoryPort repository;
 
@@ -27,8 +27,9 @@ public class PUTUpdateDeviceUseCase {
         DeviceType deviceType;
 
         try {
-            deviceStatus = DeviceStatus.valueOf(deviceDto.getStatus().toUpperCase());
             deviceType = DeviceType.valueOf(deviceDto.getType().toUpperCase());
+            deviceStatus = DeviceStatus.valueOf(deviceDto.getStatus().toUpperCase());
+
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Invalid device type or status: " + deviceDto.getType() + deviceDto.getStatus());
         }

@@ -83,6 +83,22 @@ public final class Line {
                 this.activationDate, this.simCard, LineStatus.SUSPENDED,
                 this.clientId, null, null);
     }
+
+    public Line updateData(String phoneNumber, String tariffType, SIMCard simCard, LineStatus status,
+                           Long clientId, Long employeeId, Long deviceId) {
+        return new Line(
+                this.id,
+                phoneNumber,
+                tariffType,
+                this.activationDate,
+                simCard,
+                status,
+                clientId,
+                employeeId,
+                deviceId
+        );
+    }
+
 }
 
 

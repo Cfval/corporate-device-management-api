@@ -37,6 +37,7 @@ public final class DeviceMapper {
 
     public static Device toDomain(DeviceDto dto) {
         return Device.fromPrimitives(
+                dto.getId(),
                 DeviceType.valueOf(dto.getType().toUpperCase()),
                 dto.getImei(),
                 dto.getBrand(),
