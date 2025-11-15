@@ -18,8 +18,8 @@ public final class ClientMapper {
                 client.email(),
                 client.phoneNumber(),
                 client.address(),
-                client.fechaAlta(),
-                client.estado()
+                client.registrationDate(),
+                client.status()
         );
     }
 

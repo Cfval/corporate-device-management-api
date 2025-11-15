@@ -33,7 +33,7 @@ public final class ClientEntityMapper {
                 domain.email(),
                 domain.phoneNumber(),
                 domain.address(),
-                domain.fechaAlta(),
+                domain.registrationDate(),
                 domain.isActive() ? ClientStatus.ACTIVE : ClientStatus.INACTIVE
         );
     }

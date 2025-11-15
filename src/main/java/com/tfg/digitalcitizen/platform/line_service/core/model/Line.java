@@ -1,6 +1,6 @@
 package com.tfg.digitalcitizen.platform.line_service.core.model;
 
-import com.tfg.digitalcitizen.platform.line_service.core.model.simcard.SimCard;
+import com.tfg.digitalcitizen.platform.line_service.core.model.simcard.SIMCard;
 import java.time.LocalDate;
 
 public final class Line {
@@ -9,7 +9,7 @@ public final class Line {
     private final PhoneNumber phoneNumber;
     private final TariffType tariffType;
     private final LocalDate activationDate;
-    private final SimCard simCard;     // composición: una SIM activa
+    private final SIMCard simCard;     // composición: una SIM activa
     private final LineStatus status;
     private final Long clientId;
     private final Long employeeId;
@@ -20,7 +20,7 @@ public final class Line {
     public String phoneNumber() { return phoneNumber.toPrimitive(); }
     public String tariffType() { return tariffType.toPrimitive(); }
     public LocalDate activationDate() { return activationDate; }
-    public SimCard simCard() { return simCard; }
+    public SIMCard simCard() { return simCard; }
     public String status() { return status.name(); }
     public Long clientId() { return clientId; }
     public Long employeeId() { return employeeId; }
@@ -28,7 +28,7 @@ public final class Line {
 
     // --- Constructor privado ---
     private Line(Long id, String phoneNumber, String tariffType, LocalDate activationDate,
-                 SimCard simCard, LineStatus status, Long clientId, Long employeeId, Long deviceId) {
+                 SIMCard simCard, LineStatus status, Long clientId, Long employeeId, Long deviceId) {
 
         if (phoneNumber == null || tariffType == null || activationDate == null ||
                 simCard == null || status == null || clientId == null) {
@@ -48,14 +48,14 @@ public final class Line {
 
     // --- Factory methods ---
     public static Line fromPrimitives(String phoneNumber, String tariffType, LocalDate activationDate,
-                                      SimCard simCard, LineStatus status,
+                                      SIMCard simCard, LineStatus status,
                                       Long clientId, Long employeeId, Long deviceId) {
         return new Line(null, phoneNumber, tariffType, activationDate,
                 simCard, status, clientId, employeeId, deviceId);
     }
 
     public static Line fromPrimitives(Long id, String phoneNumber, String tariffType, LocalDate activationDate,
-                                      SimCard simCard, LineStatus status,
+                                      SIMCard simCard, LineStatus status,
                                       Long clientId, Long employeeId, Long deviceId) {
         return new Line(id, phoneNumber, tariffType, activationDate,
                 simCard, status, clientId, employeeId, deviceId);
@@ -83,6 +83,22 @@ public final class Line {
                 this.activationDate, this.simCard, LineStatus.SUSPENDED,
                 this.clientId, null, null);
     }
+
+    public Line updateData(String phoneNumber, String tariffType, SIMCard simCard, LineStatus status,
+                           Long clientId, Long employeeId, Long deviceId) {
+        return new Line(
+                this.id,
+                phoneNumber,
+                tariffType,
+                this.activationDate,
+                simCard,
+                status,
+                clientId,
+                employeeId,
+                deviceId
+        );
+    }
+
 }
 
 

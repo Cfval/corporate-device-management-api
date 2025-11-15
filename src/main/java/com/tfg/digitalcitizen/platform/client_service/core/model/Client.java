@@ -20,8 +20,8 @@ public final class Client {
     public String email() { return email.toPrimitive(); }
     public String phoneNumber() { return phoneNumber.toPrimitive(); }
     public String address() { return address.toPrimitive(); }
-    public LocalDate fechaAlta() { return registrationDate; }
-    public String estado() { return status.name(); }
+    public LocalDate registrationDate() { return registrationDate; }
+    public String status() { return status.name(); }
 
     // Constructor privado
     private Client(Long id, String companyName, String cif, String email, String phoneNumber,

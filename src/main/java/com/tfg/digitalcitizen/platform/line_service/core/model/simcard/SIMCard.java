@@ -1,6 +1,6 @@
 package com.tfg.digitalcitizen.platform.line_service.core.model.simcard;
 
-public final class SimCard {
+public final class SIMCard {
 
     private final ICCIDNumber iccid; // Integrated Circuit Card Identifier
     private final SIMType type; // ESIM or Physical SIM, DUAL SIM
@@ -8,7 +8,7 @@ public final class SimCard {
     private final SIMPuk puk;
     private final Operator operator; // Mobile network operator, orange, vodafone, movistar, etc.
 
-    private SimCard(String iccid, String type, String pin, String puk, String operator) {
+    private SIMCard(String iccid, String type, String pin, String puk, String operator) {
         this.iccid = ICCIDNumber.fromPrimitive(iccid);
         this.type = SIMType.fromPrimitive(type);
         this.pin = SIMPin.fromPrimitive(pin);
@@ -16,8 +16,8 @@ public final class SimCard {
         this.operator = Operator.fromPrimitive(operator);
     }
 
-    public static SimCard fromPrimitives(String iccid, String type, String pin, String puk, String operator) {
-        return new SimCard(iccid, type, pin, puk, operator);
+    public static SIMCard fromPrimitives(String iccid, String type, String pin, String puk, String operator) {
+        return new SIMCard(iccid, type, pin, puk, operator);
     }
 
     public String iccid() { return iccid.toPrimitive(); }

@@ -91,6 +91,24 @@ public final class Device {
                 this.model.toPrimitive(), this.serialNumber.toPrimitive(), this.os.toPrimitive(),
                 DeviceStatus.STORAGE, this.activationDate, this.clientId, null, null);
     }
+
+    public Device updateData(DeviceType type, String imei, String brand, String model,
+                             String serialNumber, String os, DeviceStatus status, Long clientId, Long lineId, Long employeeId) {
+        return new Device(
+                this.id, // mantiene el ID original
+                type,
+                imei,
+                brand,
+                model,
+                serialNumber,
+                os,
+                status,
+                this.activationDate, // mantiene la fecha de activación original
+                clientId,
+                lineId,
+                employeeId
+        );
+    }
 }
 
 

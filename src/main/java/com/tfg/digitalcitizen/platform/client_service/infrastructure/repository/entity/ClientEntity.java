@@ -9,7 +9,14 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "clients")
+@Table(
+        name = "clients",
+        indexes = {
+                @Index(name = "idx_client_cif", columnList = "cif"),
+                @Index(name = "idx_client_email", columnList = "email"),
+                @Index(name = "idx_client_status", columnList = "status")
+        }
+)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -31,7 +38,7 @@ public class ClientEntity {
     @Column(nullable = false, length = 20)
     private String phoneNumber;
 
-    @Column(nullable = false, length = 250)
+    @Column(nullable = false, length = 300)
     private String address;
 
     @Column(nullable = false)
