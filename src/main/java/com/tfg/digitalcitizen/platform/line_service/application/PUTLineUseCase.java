@@ -6,6 +6,7 @@ import com.tfg.digitalcitizen.platform.line_service.core.model.Line;
 import com.tfg.digitalcitizen.platform.line_service.core.model.LineStatus;
 import com.tfg.digitalcitizen.platform.line_service.core.model.simcard.SIMCard;
 import com.tfg.digitalcitizen.platform.line_service.core.ports.LineRepositoryPort;
+import com.tfg.digitalcitizen.platform.shared.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,9 +17,12 @@ public class PUTLineUseCase {
     private final LineRepositoryPort repository;
 
     public LineDto invoke(Long id, LineDto dto) {
+        if (dto == null) {
+            throw new IllegalArgumentException("Line data cannot be null");
+        }
 
         Line existing = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Line not found with ID: " + id));
+                .orElseThrow(() -> new NotFoundException("Line not found with ID: " + id));
 
         SIMCard sim = SIMCard.fromPrimitives(
                 dto.getIccid(),

@@ -32,9 +32,7 @@ public class GETLineByIdRestController {
     public ResponseEntity<LineByIdResponse> findById(@PathVariable Long id) {
 
         LineByIdUseCaseResponse response = useCase.invoke(id);
-
         LineDto dto = LineMapper.toDto(response.getLine());
-
         return ResponseEntity.ok(new LineByIdResponse(dto));
     }
 }

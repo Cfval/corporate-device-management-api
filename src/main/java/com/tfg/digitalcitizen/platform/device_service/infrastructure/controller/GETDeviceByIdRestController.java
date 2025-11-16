@@ -5,7 +5,6 @@ import com.tfg.digitalcitizen.platform.device_service.application.dto.DeviceDto;
 import com.tfg.digitalcitizen.platform.device_service.application.mapper.DeviceMapper;
 import com.tfg.digitalcitizen.platform.device_service.application.model.DeviceByIdUseCaseResponse;
 import com.tfg.digitalcitizen.platform.device_service.infrastructure.controller.dto.DeviceResponse;
-import com.tfg.digitalcitizen.platform.device_service.infrastructure.exceptions.DeviceNotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -30,10 +29,6 @@ public class GETDeviceByIdRestController {
     public ResponseEntity<DeviceResponse> findById(@PathVariable Long id) {
 
         DeviceByIdUseCaseResponse response = useCase.invoke(id);
-        if (response.getDevice() == null) {
-            throw new DeviceNotFoundException("Device not found with ID: " + id);
-        }
-
         DeviceDto dto = DeviceMapper.toDto(response.getDevice());
         return ResponseEntity.ok(new DeviceResponse(dto));
     }

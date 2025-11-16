@@ -1,6 +1,6 @@
 package com.tfg.digitalcitizen.platform.device_service.core.model;
 
-import com.tfg.digitalcitizen.platform.shared.domain.valueobject.NullableStringValueObject;
+import com.tfg.digitalcitizen.platform.shared.valueobject.NullableStringValueObject;
 
 public class SerialNumber extends NullableStringValueObject {
 

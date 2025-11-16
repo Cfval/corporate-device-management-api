@@ -15,9 +15,11 @@ public class GETActiveLinesUseCase {
     private final LineRepositoryPort repository;
 
     public LinesUseCaseResponse invoke() {
+
         List<Line> lines = repository.findActiveLines();
         Integer totalLines = lines.size();
         Integer totalLinesFiltered = lines.size();
+
         return new LinesUseCaseResponse(lines, totalLines, totalLinesFiltered);
     }
 }

@@ -5,12 +5,13 @@ import com.tfg.digitalcitizen.platform.client_service.application.mapper.ClientM
 import com.tfg.digitalcitizen.platform.client_service.core.model.Client;
 import com.tfg.digitalcitizen.platform.client_service.core.model.ClientStatus;
 import com.tfg.digitalcitizen.platform.client_service.core.ports.ClientRepositoryPort;
+import com.tfg.digitalcitizen.platform.shared.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class PUTUpdateClientUseCase {
+public class PUTClientUseCase {
 
     private final ClientRepositoryPort repository;
 
@@ -21,7 +22,7 @@ public class PUTUpdateClientUseCase {
 
         // Buscar el cliente existente
         Client existingClient = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Client not found with ID: " + id));
+                .orElseThrow(() -> new NotFoundException("Client not found with ID: " + id));
 
         ClientStatus newStatus;
         try {

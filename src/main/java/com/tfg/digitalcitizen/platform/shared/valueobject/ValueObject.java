@@ -3,7 +3,7 @@
 // (powered by FernFlower decompiler)
 //
 
-package com.tfg.digitalcitizen.platform.shared.domain.valueobject;
+package com.tfg.digitalcitizen.platform.shared.valueobject;
 
 import java.util.Objects;
 

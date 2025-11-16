@@ -1,6 +1,6 @@
 package com.tfg.digitalcitizen.platform.line_service.core.model.simcard;
 
-import com.tfg.digitalcitizen.platform.shared.domain.valueobject.NullableStringValueObject;
+import com.tfg.digitalcitizen.platform.shared.valueobject.NullableStringValueObject;
 
 public class ICCIDNumber extends NullableStringValueObject {
 

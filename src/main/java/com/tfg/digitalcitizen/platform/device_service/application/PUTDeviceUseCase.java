@@ -6,6 +6,7 @@ import com.tfg.digitalcitizen.platform.device_service.core.model.Device;
 import com.tfg.digitalcitizen.platform.device_service.core.model.DeviceStatus;
 import com.tfg.digitalcitizen.platform.device_service.core.model.DeviceType;
 import com.tfg.digitalcitizen.platform.device_service.core.ports.DeviceRepositoryPort;
+import com.tfg.digitalcitizen.platform.shared.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +22,7 @@ public class PUTDeviceUseCase {
         }
 
         Device existingDevice = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Device not found with ID: " + id));
+                .orElseThrow(() -> new NotFoundException("Device not found with ID: " + id));
 
         DeviceStatus deviceStatus;
         DeviceType deviceType;

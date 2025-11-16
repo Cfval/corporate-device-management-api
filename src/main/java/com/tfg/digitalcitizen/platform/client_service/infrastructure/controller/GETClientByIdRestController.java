@@ -5,7 +5,6 @@ import com.tfg.digitalcitizen.platform.client_service.application.dto.ClientDto;
 import com.tfg.digitalcitizen.platform.client_service.application.mapper.ClientMapper;
 import com.tfg.digitalcitizen.platform.client_service.application.model.ClientByIdUseCaseResponse;
 import com.tfg.digitalcitizen.platform.client_service.infrastructure.controller.dto.ClientByIdResponse;
-import com.tfg.digitalcitizen.platform.client_service.infrastructure.exceptions.ClientNotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -27,12 +26,8 @@ public class GETClientByIdRestController {
     @GetMapping("/clients/{id}")
     public ResponseEntity<ClientByIdResponse> findById(@PathVariable Long id) {
 
-        try {
-            ClientByIdUseCaseResponse response = useCase.invoke(id);
-            ClientDto ClientDto = ClientMapper.toDto(response.getClient());
-            return ResponseEntity.ok(new ClientByIdResponse(ClientDto));
-        } catch (Exception e) {
-            throw new ClientNotFoundException("Client not found with ID: " + id);
-        }
+        ClientByIdUseCaseResponse response = useCase.invoke(id);
+        ClientDto ClientDto = ClientMapper.toDto(response.getClient());
+        return ResponseEntity.ok(new ClientByIdResponse(ClientDto));
     }
 }
