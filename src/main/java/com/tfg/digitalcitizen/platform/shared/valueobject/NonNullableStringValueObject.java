@@ -1,5 +1,5 @@
 
-package com.tfg.digitalcitizen.platform.shared.domain.valueobject;
+package com.tfg.digitalcitizen.platform.shared.valueobject;
 
 import io.micrometer.common.util.StringUtils;
 

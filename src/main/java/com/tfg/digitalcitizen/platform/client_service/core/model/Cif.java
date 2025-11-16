@@ -1,6 +1,6 @@
 package com.tfg.digitalcitizen.platform.client_service.core.model;
 
-import com.tfg.digitalcitizen.platform.shared.domain.valueobject.NonNullableStringValueObject;
+import com.tfg.digitalcitizen.platform.shared.valueobject.NonNullableStringValueObject;
 
 public class Cif extends NonNullableStringValueObject {
 

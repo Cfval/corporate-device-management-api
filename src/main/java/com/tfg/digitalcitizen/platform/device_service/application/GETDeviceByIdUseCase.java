@@ -3,6 +3,7 @@ package com.tfg.digitalcitizen.platform.device_service.application;
 import com.tfg.digitalcitizen.platform.device_service.application.model.DeviceByIdUseCaseResponse;
 import com.tfg.digitalcitizen.platform.device_service.core.model.Device;
 import com.tfg.digitalcitizen.platform.device_service.core.ports.DeviceRepositoryPort;
+import com.tfg.digitalcitizen.platform.shared.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,7 @@ public class GETDeviceByIdUseCase {
         }
 
         Device device = repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Device not found with ID: " + id));
+                .orElseThrow(() -> new NotFoundException("Device not found with ID: " + id));
 
         return new DeviceByIdUseCaseResponse(device);
     }

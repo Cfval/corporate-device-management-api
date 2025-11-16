@@ -15,6 +15,9 @@ public class GETUsersByClientIdUseCase {
     private final UserRepositoryPort repository;
 
     public UsersUseCaseResponse invoke(Long clientId) {
+        if (clientId == null) {
+            throw new IllegalArgumentException("ID cannot be null");
+        }
 
         List<User> users = repository.findByClientId(clientId);
         Integer totalUsers = users.size();

@@ -15,6 +15,7 @@ public class GETAllDevicesUseCase {
     private final DeviceRepositoryPort repository;
 
     public DevicesUseCaseResponse invoke() {
+
         List<Device> devices = repository.findAll();
         Integer totalDevices = devices.size();
         Integer totalDevicesFiltered = devices.size(); // TODO: implementar filtros

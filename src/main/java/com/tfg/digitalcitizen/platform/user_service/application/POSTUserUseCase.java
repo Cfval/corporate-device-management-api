@@ -14,6 +14,9 @@ public class POSTUserUseCase {
     private final UserRepositoryPort repository;
 
     public UserDto invoke(UserDto dto) {
+        if (dto == null) {
+            throw new IllegalArgumentException("Line data cannot be null");
+        }
 
         User userToSave = UserMapper.toDomain(dto);
         User saved = repository.save(userToSave);

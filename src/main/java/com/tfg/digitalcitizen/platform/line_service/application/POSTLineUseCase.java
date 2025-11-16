@@ -14,6 +14,9 @@ public class POSTLineUseCase {
     private final LineRepositoryPort repository;
 
     public LineDto invoke(LineDto lineDto) {
+        if (lineDto == null) {
+            throw new IllegalArgumentException("Line data cannot be null");
+        }
 
         Line lineToSave = LineMapper.toDomain(lineDto);
         Line saved = repository.save(lineToSave);
