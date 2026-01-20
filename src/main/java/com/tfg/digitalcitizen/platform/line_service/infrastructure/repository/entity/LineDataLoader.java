@@ -4,74 +4,117 @@ import com.tfg.digitalcitizen.platform.line_service.core.model.Line;
 import com.tfg.digitalcitizen.platform.line_service.core.model.LineStatus;
 import com.tfg.digitalcitizen.platform.line_service.core.model.simcard.SIMCard;
 import com.tfg.digitalcitizen.platform.line_service.core.ports.LineRepositoryPort;
+import com.tfg.digitalcitizen.platform.user_service.core.model.User;
+import com.tfg.digitalcitizen.platform.user_service.core.ports.UserRepositoryPort;
+
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Random;
 
-@Configuration
-public class LineDataLoader {
+@Component
+@Order(3)
+public class LineDataLoader implements CommandLineRunner {
+
+    private final LineRepositoryPort lineRepository;
+    private final UserRepositoryPort userRepository;
 
     private static final Random random = new Random();
 
     private static final String[] TARIFFS = {
-            "BASIC", "STANDARD", "PREMIUM", "UNLIMITED"
+
+            // Datacentric: planes corporativos por GB
+            "Empresa Datos 5GB",
+            "Empresa Datos 10GB",
+            "Empresa Datos 25GB",
+            "Empresa Datos 50GB",
+            "Empresa Datos 100GB",
+
+            // Ilimitadas reales o “soft”
+            "Datos Ilimitados Pro",
+            "Datos Ilimitados Max",
+            "Datos Ilimitados Business",
+
+            //  Voz + Datos (mixtas corporativas)
+            "Voz Ilimitada + 20GB",
+            "Voz Ilimitada + 50GB",
+            "Voz Ilimitada + 100GB",
+
+            // Segmento autónomos / pymes
+            "Plan Autónomos 15GB",
+            "Plan Pyme 30GB",
+
+            // IoT / M2M / SIM secundaria
+            "Tarifa IoT 500MB",
+            "Tarifa M2M 1GB",
+
+            // Tarjetas de datos puramente
+            "Solo Datos 20GB",
+            "Solo Datos 40GB",
+
+            // Planes internacionales
+            "Roaming Pro Europa",
+            "Roaming Global Business"
     };
 
     private static final String[] OPERATORS = {
             "Movistar", "Orange", "Vodafone", "Pepephone"
     };
 
-    @Bean
-    CommandLineRunner initLinesDatabase(LineRepositoryPort repository) {
-        return args -> {
+    public LineDataLoader(LineRepositoryPort lineRepository,
+                          UserRepositoryPort userRepository) {
+        this.lineRepository = lineRepository;
+        this.userRepository = userRepository;
+    }
 
-            if (!repository.findAll().isEmpty()) {
-                System.out.println("La base de datos ya contiene líneas. Precarga omitida.");
-                return;
-            }
+    @Override
+    public void run(String... args) throws Exception {
 
-            int totalLines = 250;
-            System.out.println("Generando " + totalLines + " líneas aleatorias...");
+        if (!lineRepository.findAll().isEmpty()) {
+            System.out.println("La base de datos ya contiene líneas. Precarga omitida.");
+            return;
+        }
 
-            for (int i = 1; i <= totalLines; i++) {
+        int totalLines = 250;
+        System.out.println("Generando " + totalLines + " líneas aleatorias...");
 
-                String phone = generatePhoneNumber(i);
-                String tariff = randomTariff();
-                LocalDate activation = LocalDate.now().minusDays(random.nextInt(1500));
+        for (int i = 1; i <= totalLines; i++) {
 
-                SIMCard simCard = randomSIMCard(i);
+            Long clientId = (long) (1 + random.nextInt(15)); // 1..15
 
-                LineStatus status = randomStatus();
+            String phone = generatePhoneNumber(i);
+            String tariff = randomTariff();
+            LocalDate activation = LocalDate.now().minusDays(random.nextInt(1500));
+            SIMCard simCard = randomSIMCard(i);
+            LineStatus status = randomStatus();
 
-                Long clientId = (long) (1 + random.nextInt(15)); // 1..15
-                Long employeeId = assignEmployeeId(status);
-                Long deviceId = assignDeviceId(status, employeeId);
+            Long employeeId = assignEmployeeId(clientId, status);
+            Long deviceId = assignDeviceId(status, employeeId);
 
-                repository.save(Line.fromPrimitives(
-                        phone,
-                        tariff,
-                        activation,
-                        simCard,
-                        status,
-                        clientId,
-                        employeeId,
-                        deviceId
-                ));
-            }
+            lineRepository.save(Line.fromPrimitives(
+                    phone,
+                    tariff,
+                    activation,
+                    simCard,
+                    status,
+                    clientId,
+                    employeeId,
+                    deviceId
+            ));
+        }
 
-            System.out.println("Líneas generadas correctamente.");
-        };
+        System.out.println("Líneas generadas correctamente.");
     }
 
     // ==========================================================
-    // HELPERS — telecom realistic generation
+    // HELPERS — lógica realista
     // ==========================================================
 
     private String generatePhoneNumber(int i) {
-        return "6" + String.format("%08d", i); // 600000001, etc.
+        return "6" + String.format("%08d", i);
     }
 
     private String randomTariff() {
@@ -80,36 +123,31 @@ public class LineDataLoader {
 
     private LineStatus randomStatus() {
         int p = random.nextInt(100);
-
         if (p < 55) return LineStatus.ACTIVE;
         if (p < 80) return LineStatus.SUSPENDED;
         return LineStatus.DEACTIVATED;
     }
 
     private SIMCard randomSIMCard(int i) {
-        String iccid = randomICCID(i);
-        String type = randomSIMType();
-        String pin = randomPIN();
-        String puk = randomPUK();
-        String operator = randomOperator();
-
-        return SIMCard.fromPrimitives(iccid, type, pin, puk, operator);
+        return SIMCard.fromPrimitives(
+                randomICCID(i),
+                randomSIMType(),
+                randomPIN(),
+                randomPUK(),
+                randomOperator()
+        );
     }
 
     private String randomICCID(int i) {
-        // Siempre ICCID de 19 digitos empezando con "893450"
-        String prefix = "893450"; // MNC/MCC prefijo fijo para España y operador ficticio
-        String mid = String.format("%013d", i); // asegura longitud total = 6 + 13 = 19
-        return prefix + mid;
+        return "893450" + String.format("%013d", i);
     }
 
     private String randomSIMType() {
         int p = random.nextInt(100);
-
-        if (p < 50) return "SIM";          // 50%
-        if (p < 80) return "ESIM";         // siguiente 30%
-        if (p < 90) return "DUAL SIM";     // siguiente 10%
-        return "MULTISIM";                 // último 10%
+        if (p < 50) return "SIM";
+        if (p < 80) return "ESIM";
+        if (p < 90) return "DUAL SIM";
+        return "MULTISIM";
     }
 
     private String randomPIN() {
@@ -124,23 +162,37 @@ public class LineDataLoader {
         return OPERATORS[random.nextInt(OPERATORS.length)];
     }
 
-    private Long assignEmployeeId(LineStatus status) {
+    // ==========================================================
+    // ASIGNACIONES — reglas coherentes Cliente ⇆ Usuario ⇆ Línea
+    // ==========================================================
+
+    private Long assignEmployeeId(Long clientId, LineStatus status) {
+
         if (status != LineStatus.ACTIVE) return null;
 
-        if (random.nextInt(100) < 60) { // 60% asignadas a empleado
-            return (long) (1 + random.nextInt(150)); // 1..150
-        }
-        return null;
+        // 75% probabilidad
+        if (random.nextInt(100) >= 75) return null;
+
+        List<User> users = userRepository.findByClientId(clientId)
+                .stream()
+                .filter(User::isActive)
+                .toList();
+
+        if (users.isEmpty()) return null;
+
+        User randomUser = users.get(random.nextInt(users.size()));
+        return randomUser.id();
     }
 
     private Long assignDeviceId(LineStatus status, Long employeeId) {
         if (status != LineStatus.ACTIVE) return null;
         if (employeeId == null) return null;
 
-        if (random.nextInt(100) < 70) { // 70% con dispositivo
-            return (long) (1 + random.nextInt(200)); // 1..200
+        if (random.nextInt(100) < 70) {
+            return (long) (1 + random.nextInt(200)); // 1..200 device IDs
         }
         return null;
     }
 }
+
 

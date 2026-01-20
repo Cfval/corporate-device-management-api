@@ -30,14 +30,16 @@ public final class User {
                  LocalDate registrationDate, UserStatus status, String role,
                  Long clientId, Long lineId) {
 
-        if (fullName == null || registrationDate == null || status == null || clientId == null)
+        if (fullName == null || status == null || clientId == null)
             throw new IllegalArgumentException("Campos obligatorios no pueden ser nulos.");
 
         this.id = id;
         this.fullName = FullName.fromPrimitive(fullName);
         this.email = Email.fromPrimitive(email);
         this.department = Department.fromPrimitive(department);
-        this.registrationDate = registrationDate;
+        this.registrationDate = (registrationDate != null)
+                ? registrationDate
+                : LocalDate.now();
         this.status = status;
         this.role = UserRole.fromPrimitive(role);
         this.clientId = clientId;
@@ -58,6 +60,10 @@ public final class User {
     }
 
     // --- Business logic ---
+    public UserStatus statusEnum() {
+        return this.status;
+    }
+
     public boolean isActive() {
         return this.status == UserStatus.ACTIVE;
     }

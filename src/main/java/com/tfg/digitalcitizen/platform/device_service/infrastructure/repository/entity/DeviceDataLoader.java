@@ -2,21 +2,32 @@ package com.tfg.digitalcitizen.platform.device_service.infrastructure.repository
 
 import com.tfg.digitalcitizen.platform.device_service.core.model.*;
 import com.tfg.digitalcitizen.platform.device_service.core.ports.DeviceRepositoryPort;
+import com.tfg.digitalcitizen.platform.user_service.core.model.User;
+import com.tfg.digitalcitizen.platform.user_service.core.ports.UserRepositoryPort;
+
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Random;
 
-@Configuration
-public class DeviceDataLoader {
+@Component
+@Order(4)
+public class DeviceDataLoader implements CommandLineRunner {
 
+    private final DeviceRepositoryPort repository;
+    private final UserRepositoryPort userRepository;
     private static final Random random = new Random();
 
+    public DeviceDataLoader(DeviceRepositoryPort repository, UserRepositoryPort userRepository) {
+        this.repository = repository;
+        this.userRepository = userRepository;
+    }
+
     private static final String[] BRANDS = {
-            "Samsung", "Apple", "Xiaomi", "Lenovo",
-            "HP", "Dell", "Huawei", "Google"
+            "Samsung", "Apple", "Xiaomi", "Lenovo", "HP", "Dell", "Huawei", "Google"
     };
 
     private static final String[] ANDROID_MODELS = {
@@ -31,61 +42,54 @@ public class DeviceDataLoader {
             "ThinkPad X1", "MacBook Pro", "MateBook X", "Dell XPS 13"
     };
 
-    private static final String[] ROUTER_MODELS = {
-            "AX1800", "AX3600", "MeshPro X1"
-    };
-
     private static final String[] OS_TYPES = {
-            "Android", "iOS", "Windows", "ChromeOS", "HarmonyOS", "Linux"
+            "Android", "iOS", "Windows", "MacOS", "Linux", "Otro"
     };
 
-    @Bean
-    CommandLineRunner initDevicesDatabase(DeviceRepositoryPort repository) {
-        return args -> {
+    @Override
+    public void run(String... args) throws Exception {
 
-            if (!repository.findAll().isEmpty()) {
-                System.out.println("La base de datos ya contiene dispositivos. Precarga omitida.");
-                return;
-            }
+        if (!repository.findAll().isEmpty()) {
+            System.out.println("Base de datos ya contiene dispositivos. Precarga omitida.");
+            return;
+        }
 
-            int totalDevices = 200;
-            System.out.println("Generando " + totalDevices + " dispositivos aleatorios...");
+        int totalDevices = 200;
+        System.out.println("Generando " + totalDevices + " dispositivos aleatorios...");
 
-            for (int i = 1; i <= totalDevices; i++) {
+        for (int i = 1; i <= totalDevices; i++) {
 
-                DeviceType type = randomDeviceType();
+            DeviceType type = randomDeviceType();
 
-                String imei = generateImei(i); // siempre 15 dígitos únicos
+            String imei = generateImei(i);
+            String brand = randomBrand();
+            String model = randomModel(type);
+            String os = randomOs(type);
 
-                String brand = randomBrand();
-                String model = randomModel(type, brand);
-                String os = randomOs(type);
+            LocalDate activationDate = LocalDate.now().minusDays(random.nextInt(1500));
+            DeviceStatus status = randomDeviceStatus();
 
-                LocalDate activation = LocalDate.now().minusDays(random.nextInt(1500));
+            Long clientId = (long) (1 + random.nextInt(15));
 
-                DeviceStatus status = randomDeviceStatus();
+            Long employeeId = assignEmployeeForClient(clientId, status);
+            Long lineId = assignLineForEmployee(employeeId, status);
 
-                Long clientId = (long) (1 + random.nextInt(15));      // 1..15
-                Long employeeId = assignEmployeeId(status);
-                Long lineId = assignLineId(status, employeeId);
+            repository.save(Device.fromPrimitives(
+                    type,
+                    imei,
+                    brand,
+                    model,
+                    randomSerial(),
+                    os,
+                    status,
+                    activationDate,
+                    clientId,
+                    lineId,
+                    employeeId
+            ));
+        }
 
-                repository.save(Device.fromPrimitives(
-                        type,
-                        imei,
-                        brand,
-                        model,
-                        randomSerial(),
-                        os,
-                        status,
-                        activation,
-                        clientId,
-                        lineId,
-                        employeeId
-                ));
-            }
-
-            System.out.println("Dispositivos generados correctamente.");
-        };
+        System.out.println("Dispositivos generados correctamente.");
     }
 
     // ==========================================================
@@ -101,7 +105,7 @@ public class DeviceDataLoader {
         return BRANDS[random.nextInt(BRANDS.length)];
     }
 
-    private String randomModel(DeviceType type, String brand) {
+    private String randomModel(DeviceType type) {
         return switch (type) {
             case SMARTPHONE -> ANDROID_MODELS[random.nextInt(ANDROID_MODELS.length)];
             case TABLET -> ANDROID_MODELS[random.nextInt(ANDROID_MODELS.length)];
@@ -132,34 +136,49 @@ public class DeviceDataLoader {
     }
 
     private String generateImei(int i) {
-        // IMEI de 15 dígitos: "35" + 13 dígitos del índice
-        String prefix = "35"; // TAC genérico
-        String body = String.format("%013d", i); // rellena con ceros a la izquierda
-        return prefix + body; // total 15 dígitos
+        return "35" + String.format("%013d", i);
     }
 
     private String randomSerial() {
         return "SN" + (1000 + random.nextInt(9000));
     }
 
-    private Long assignEmployeeId(DeviceStatus status) {
-        if (status != DeviceStatus.ASSIGNED) return null;
+    /**
+     * Asigna employeeId SOLO si:
+     *  - El dispositivo está ASSIGNED
+     *  - EXISTE un usuario activo del mismo cliente
+     */
+    private Long assignEmployeeForClient(Long clientId, DeviceStatus status) {
 
-        if (random.nextInt(100) < 70) { // 70% asignados
-            return (long) (1 + random.nextInt(150)); // 1..150
-        }
-        return null;
+        if (status != DeviceStatus.ASSIGNED) return null;
+        if (random.nextInt(100) >= 70) return null; // 70% probabilidad
+
+        List<User> users = userRepository.findByClientId(clientId)
+                .stream()
+                .filter(User::isActive)
+                .toList();
+
+        if (users.isEmpty()) return null;
+
+        User u = users.get(random.nextInt(users.size()));
+        return u.id();
     }
 
-    private Long assignLineId(DeviceStatus status, Long employeeId) {
+    /**
+     * Asigna lineId SOLO si:
+     *  - El dispositivo está asignado
+     *  - El empleado tiene una línea asignada
+     */
+    private Long assignLineForEmployee(Long employeeId, DeviceStatus status) {
+
         if (status != DeviceStatus.ASSIGNED) return null;
         if (employeeId == null) return null;
 
-        if (random.nextInt(100) < 70) { // 70% llevan línea
-            return (long) (1 + random.nextInt(250)); // 1..250
-        }
-        return null;
+        return userRepository.findById(employeeId)
+                .map(User::lineId)
+                .orElse(null);
     }
 }
+
 
 

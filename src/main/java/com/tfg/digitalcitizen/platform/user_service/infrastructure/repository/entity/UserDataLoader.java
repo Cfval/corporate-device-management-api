@@ -3,16 +3,19 @@ package com.tfg.digitalcitizen.platform.user_service.infrastructure.repository.e
 import com.tfg.digitalcitizen.platform.user_service.core.model.User;
 import com.tfg.digitalcitizen.platform.user_service.core.model.UserStatus;
 import com.tfg.digitalcitizen.platform.user_service.core.ports.UserRepositoryPort;
+
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 import java.time.LocalDate;
 import java.util.Random;
 
-@Configuration
-public class UserDataLoader {
+@Component
+@Order(2)
+public class UserDataLoader implements CommandLineRunner {
 
+    private final UserRepositoryPort repository;
     private static final Random random = new Random();
 
     private static final String[] FIRST_NAMES = {
@@ -26,71 +29,57 @@ public class UserDataLoader {
     };
 
     private static final String[] DEPARTMENTS = {
-            "IT", "HR", "Marketing", "Finance", "Operations", "Support"
+            "IT", "RRHH", "Marketing", "Contabilidad", "Operaciones", "Soporte"
     };
 
-    private static final String[] ROLES = {
-            "EMPLOYEE", "MANAGER", "TECHNICIAN", "ANALYST", "SUPPORT", "ADMIN"
-    };
-
-    @Bean
-    CommandLineRunner initUsersDatabase(UserRepositoryPort repository) {
-        return args -> {
-
-            if (!repository.findAll().isEmpty()) {
-                System.out.println("Base de datos ya contiene usuarios. Precarga omitida.");
-                return;
-            }
-
-            int totalUsers = 150;
-            System.out.println("Generando " + totalUsers + " usuarios aleatorios...");
-
-            for (int i = 1; i <= totalUsers; i++) {
-
-                // Full Name
-                String fullName = generateFullName();
-
-                // Client ID (1..15)
-                Long clientId = (long) (1 + random.nextInt(15));
-
-                // Email using domain by client
-                String email = generateEmail(fullName, clientId, i);
-
-                // Department (80% con departamento)
-                String department = randomDepartment();
-
-                // Registration date
-                LocalDate registration = LocalDate.now().minusDays(random.nextInt(1500));
-
-                // Status distribution
-                UserStatus status = randomUserStatus();
-
-                // Role
-                String role = randomRole();
-
-                // LineId (solo si ACTIVE, 40% probabilidad)
-                Long lineId = assignLineId(status);
-
-                repository.save(User.fromPrimitives(
-                        fullName,
-                        email,
-                        department,
-                        registration,
-                        status,
-                        role,
-                        clientId,
-                        lineId
-                ));
-            }
-
-            System.out.println("Usuarios generados correctamente.");
-        };
+    // Constructor Injection
+    public UserDataLoader(UserRepositoryPort repository) {
+        this.repository = repository;
     }
 
-    // ==========================================================
-    // HELPERS
-    // ==========================================================
+    // EJECUCIÓN DEL LOADER
+    @Override
+    public void run(String... args) throws Exception {
 
+        if (!repository.findAll().isEmpty()) {
+            System.out.println("Base de datos ya contiene usuarios. Precarga omitida.");
+            return;
+        }
+
+        int totalUsers = 150;
+        System.out.println("Generando " + totalUsers + " usuarios aleatorios...");
+
+        for (int i = 1; i <= totalUsers; i++) {
+
+            String fullName = generateFullName();
+            Long clientId = (long) (1 + random.nextInt(15)); // 1..15
+            String email = generateEmail(fullName, clientId, i);
+
+            String department = randomDepartment();
+            LocalDate registration = LocalDate.now().minusDays(random.nextInt(1500));
+            UserStatus status = randomUserStatus();
+            String role = randomRole();
+
+            // NO asignamos línea aquí, lo hará LineUserSyncLoader
+            Long lineId = null;
+
+            repository.save(User.fromPrimitives(
+                    fullName,
+                    email,
+                    department,
+                    registration,
+                    status,
+                    role,
+                    clientId,
+                    lineId
+            ));
+        }
+
+        System.out.println("Usuarios generados correctamente.");
+    }
+
+
+    // HELPERS
     private String generateFullName() {
         String first = FIRST_NAMES[random.nextInt(FIRST_NAMES.length)];
         String last = LAST_NAMES[random.nextInt(LAST_NAMES.length)];
@@ -101,14 +90,14 @@ public class UserDataLoader {
         String normalized = normalize(fullName)
                 .toLowerCase()
                 .replace(" ", ".")
-                .replaceAll("[^a-z0-9._-]", ""); // solo caracteres válidos
+                .replaceAll("[^a-z0-9._-]", "");
 
-        return normalized + unique + "@client" + clientId + ".com";
+        return normalized + unique + "@cliente" + clientId + ".com";
     }
 
     private String normalize(String text) {
         String norm = java.text.Normalizer.normalize(text, java.text.Normalizer.Form.NFD);
-        return norm.replaceAll("\\p{InCombiningDiacriticalMarks}+", ""); // elimina tildes
+        return norm.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
     }
 
     private String randomDepartment() {
@@ -124,21 +113,14 @@ public class UserDataLoader {
     private String randomRole() {
         int p = random.nextInt(100);
 
-        if (p < 50) return "EMPLOYEE";
-        if (p < 60) return "MANAGER";
-        if (p < 75) return "TECHNICIAN";
-        if (p < 90) return "ANALYST";
-        if (p < 95) return "SUPPORT";
+        if (p < 50) return "EMPLEADO";
+        if (p < 60) return "GERENTE";
+        if (p < 75) return "TÉCNICO";
+        if (p < 90) return "ANALISTA";
+        if (p < 95) return "SOPORTE";
         return "ADMIN";
     }
-
-    private Long assignLineId(UserStatus status) {
-        if (status != UserStatus.ACTIVE) return null;
-
-        if (random.nextInt(100) < 40) { // 40% asignados
-            return (long) (1 + random.nextInt(250)); // 1..250
-        }
-        return null;
-    }
 }
+
+
 

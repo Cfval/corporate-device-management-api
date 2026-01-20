@@ -40,7 +40,7 @@ public final class Device {
                    String serialNumber, String os, DeviceStatus status, LocalDate activationDate,
                    Long clientId, Long lineId, Long employeeId) {
 
-        if (type == null || status == null || activationDate == null || clientId == null) {
+        if (type == null || status == null || clientId == null) {
             throw new IllegalArgumentException("Mandatory fields cannot be null.");
         }
 
@@ -52,7 +52,9 @@ public final class Device {
         this.serialNumber = SerialNumber.fromPrimitive(serialNumber);
         this.os = OperatingSystem.fromPrimitive(os);
         this.status = status;
-        this.activationDate = activationDate;
+        this.activationDate = (activationDate != null)
+                ? activationDate
+                : LocalDate.now();
         this.clientId = clientId;
         this.lineId = lineId;
         this.employeeId = employeeId;

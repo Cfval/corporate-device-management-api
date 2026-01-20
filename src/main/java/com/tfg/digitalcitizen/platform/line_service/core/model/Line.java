@@ -33,7 +33,7 @@ public final class Line {
     private Line(Long id, String phoneNumber, String tariffType, LocalDate activationDate,
                  SIMCard simCard, LineStatus status, Long clientId, Long employeeId, Long deviceId) {
 
-        if (phoneNumber == null || tariffType == null || activationDate == null ||
+        if (phoneNumber == null || tariffType == null ||
                 simCard == null || status == null || clientId == null) {
             throw new IllegalArgumentException("Mandatory fields cannot be null.");
         }
@@ -41,7 +41,9 @@ public final class Line {
         this.id = id;
         this.phoneNumber = PhoneNumber.fromPrimitive(phoneNumber);
         this.tariffType = TariffType.fromPrimitive(tariffType);
-        this.activationDate = activationDate;
+        this.activationDate = (activationDate != null)
+                ? activationDate
+                : LocalDate.now();
         this.simCard = simCard;
         this.status = status;
         this.clientId = clientId;

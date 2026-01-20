@@ -33,7 +33,9 @@ public final class Client {
         this.email = Email.fromPrimitive(email);
         this.phoneNumber = PhoneNumber.fromPrimitive(phoneNumber);
         this.address = Address.fromPrimitive(address);
-        this.registrationDate = registrationDate;
+        this.registrationDate = (registrationDate != null)
+                ? registrationDate
+                : LocalDate.now();
         this.status = status;
     }
 
