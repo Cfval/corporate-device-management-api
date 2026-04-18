@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(grep -rl \"@Tag\" src/main/java/com/tfg/digitalcitizen/platform/*/infrastructure/controller/)",
-      "Bash(./mvnw compile:*)"
-    ]
-  }
-}
