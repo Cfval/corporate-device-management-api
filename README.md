@@ -12,7 +12,7 @@ A RESTful backend for managing corporate mobile assets — clients, employees, d
 
 | Service | URL |
 |---|---|
-| Swagger UI | https://digital-citizen-api.onrender.com/swagger-ui/index.html |
+| Swagger UI | https://corporate-device-management-api.onrender.com/swagger-ui/index.html |
 | Frontend (React) | https://digital-citizen-app.onrender.com |
 
 ---
@@ -112,7 +112,7 @@ src/main/java/com/tfg/digitalcitizen/platform/
 | GET | `/reports/client/{clientId}/devices` | Device health report for a client |
 | GET | `/reports/client/{clientId}/lines` | Line usage report for a client |
 
-Full request/response schemas are documented in the [Swagger UI](https://digital-citizen-api.onrender.com/swagger-ui/index.html).
+Full request/response schemas are documented in the [Swagger UI](https://corporate-device-management-api.onrender.com/swagger-ui/index.html).
 
 ---
 
